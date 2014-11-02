@@ -1,5 +1,5 @@
 ### Check if an Instagram profile is public or private using the username
-[Demo](sotirelischristos.com/insta/)
+[Demo](http://www.sotirelischristos.com/insta/)
 
 
 **USAGE:**
