@@ -1,5 +1,25 @@
 <?php
 
+// A hack to retreive the profile picture from the HTML of a private profile
+function getProfilePictureWhenPrivate($username) {
+    $username = strtolower($username);
+    $url = 'http://instagram.com/' . $username;
+    $get = file_get_contents($url);
+    // Create a DOM object and load profile HTML
+    libxml_use_internal_errors(true);
+    $doc = new DOMDocument();
+    $doc->loadHTML($get);
+    // Search for meta element
+    $metas = $doc->getElementsByTagName('meta');
+    // Iterate through metas and get picture URL
+    foreach ($metas as $meta) {
+        if($meta->getAttribute('property') == 'og:image') { 
+            return $meta->getAttribute('content');
+        }
+    }
+    return -1; // Error while getting picture 
+}
+
 // Get the profile ID through username
 function getID($username, $client_id) {
     $username = strtolower($username); // Instagram usernames are always in lowercase
@@ -28,6 +48,10 @@ function isPrivate($username, $client_id) {
 	$get = @file_get_contents("https://api.instagram.com/v1/users/{$user_id}/media/recent/?client_id={$client_id}");
 	// False means that we cannot retreive profile data (private profile)
 	if ($get === false) {
+	    // Get profile picture
+	    if (($pic = getProfilePictureWhenPrivate($username)) != -1) {
+		echo "<br /><img src='{$pic}' /><br />";
+	    }
 	    return true;
 	} else {
 	    $json = json_decode($get);
